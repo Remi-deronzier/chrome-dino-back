@@ -3,7 +3,7 @@ const router = express.Router();
 
 const Result = require("../models/Result");
 
-const maxResultToDisplay = 10;
+const maxResultsToDisplay = 10;
 
 router.post("/scores/sort", async (req, res) => {
   console.log("route: /scores/sort");
@@ -13,14 +13,16 @@ router.post("/scores/sort", async (req, res) => {
     const sortFilter = { score: -1 };
     const results = await Result.find().sort(sortFilter);
     const lastIndex = results.length - 1;
+    let rank = -1; // -1 means not in top 10
     const newResult = Result({
       username,
       score,
     });
-    if (results.length < maxResultToDisplay) {
+    if (results.length < maxResultsToDisplay) {
       await newResult.save();
       results.unshift(newResult);
       results.sort(compareResults);
+      rank = results.findIndex((result) => result.score === score) + 1;
     } else {
       if (score > results[lastIndex].score) {
         const resultToUpdateId = results[lastIndex]._id;
@@ -29,9 +31,10 @@ router.post("/scores/sort", async (req, res) => {
         results.sort(compareResults);
         await Result.findByIdAndDelete(resultToUpdateId, newResult);
         await newResult.save();
+        rank = results.findIndex((result) => result.score === score) + 1;
       }
     }
-    res.status(200).json(results);
+    res.status(200).json({ results, rank });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -46,5 +49,26 @@ function compareResults(result1, result2) {
   }
   return 0;
 }
+
+router.get("/scores/is-in-top-10", async (req, res) => {
+  console.log("route: /scores/is-in-top-10");
+  console.log("query: ", req.query);
+  try {
+    const { score } = req.query;
+    const sortFilter = { score: -1 };
+    const results = await Result.find().sort(sortFilter);
+    if (results.length < maxResultsToDisplay) {
+      res.status(200).json({ isInTop10: true });
+    } else {
+      if (score > results[results.length - 1].score) {
+        res.status(200).json({ isInTop10: true });
+      } else {
+        res.status(200).json({ isInTop10: false });
+      }
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
 
 module.exports = router;
