@@ -40,6 +40,17 @@ router.post("/scores/sort", async (req, res) => {
   }
 });
 
+router.get("/scores/all", async (req, res) => {
+  console.log("route: /scores/all");
+  try {
+    const sortFilter = { score: -1 };
+    const results = await Result.find().sort(sortFilter);
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 function compareResults(result1, result2) {
   if (result1.score < result2.score) {
     return 1;
