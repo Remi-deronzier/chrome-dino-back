@@ -1,11 +1,26 @@
 const express = require("express");
 const router = express.Router();
+const cors = require("cors");
 
 const Result = require("../models/Result");
 
 const maxResultsToDisplay = 10;
 
-router.post("/scores/sort", async (req, res) => {
+const whitelist = [
+  "http://127.0.0.1:5500",
+  "https://vodkasgard-jimy-phoenix-game.netlify.app",
+];
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
+router.post("/scores/sort", cors(corsOptions), async (req, res) => {
   console.log("route: /scores/sort");
   console.log("body: ", req.fields);
   try {
@@ -40,7 +55,7 @@ router.post("/scores/sort", async (req, res) => {
   }
 });
 
-router.get("/scores/all", async (req, res) => {
+router.get("/scores/all", cors(corsOptions), async (req, res) => {
   console.log("route: /scores/all");
   try {
     const sortFilter = { score: -1 };
@@ -61,7 +76,7 @@ function compareResults(result1, result2) {
   return 0;
 }
 
-router.get("/scores/is-in-top-10", async (req, res) => {
+router.get("/scores/is-in-top-10", cors(corsOptions), async (req, res) => {
   console.log("route: /scores/is-in-top-10");
   console.log("query: ", req.query);
   try {
