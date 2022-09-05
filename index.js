@@ -2,14 +2,11 @@ const express = require("express");
 const mongoose = require("mongoose");
 const formidable = require("express-formidable");
 require("dotenv").config();
-const csrf = require("csurf");
+const cors = require("cors");
 
 const app = express();
 app.use(formidable());
-
-// setup route middlewares
-const csrfProtection = csrf({ cookie: true });
-// app.use(csrfProtection);
+app.use(cors());
 
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
@@ -21,10 +18,6 @@ const resultRoutes = require("./routes/result");
 app.use(resultRoutes);
 
 // Start server + Page not found + Welcome page
-
-app.get("/getCSRFToken", (req, res) => {
-  res.json({ CSRFToken: req.csrfToken() });
-});
 
 app.use("/", (req, res) => {
   console.log("route: /");

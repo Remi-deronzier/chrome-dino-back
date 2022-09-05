@@ -20,7 +20,7 @@ const corsOptions = {
   },
 };
 
-router.post("/scores/sort", cors(corsOptions), async (req, res) => {
+router.post("/scores/sort", async (req, res) => {
   console.log("route: /scores/sort");
   console.log("body: ", req.fields);
   try {
@@ -55,7 +55,7 @@ router.post("/scores/sort", cors(corsOptions), async (req, res) => {
   }
 });
 
-router.get("/scores/all", cors(corsOptions), async (req, res) => {
+router.get("/scores/all", async (req, res) => {
   console.log("route: /scores/all");
   try {
     const sortFilter = { score: -1 };
@@ -76,7 +76,7 @@ function compareResults(result1, result2) {
   return 0;
 }
 
-router.get("/scores/is-in-top-10", cors(corsOptions), async (req, res) => {
+router.get("/scores/is-in-top-10", async (req, res) => {
   console.log("route: /scores/is-in-top-10");
   console.log("query: ", req.query);
   try {
